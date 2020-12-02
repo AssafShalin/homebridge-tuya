@@ -21,6 +21,7 @@ const SimpleFanAccessory = require('./lib/SimpleFanAccessory');
 const SimpleFanLightAccessory = require('./lib/SimpleFanLightAccessory');
 const ValveAccessory = require('./lib/ValveAccessory');
 const OilDiffuserAccessory = require('./lib/OilDiffuserAccessory');
+const CustomBlindsAccessory = require('./lib/CustomBlindsAccessory');
 
 const PLUGIN_NAME = 'homebridge-tuya-lan';
 const PLATFORM_NAME = 'TuyaLan';
@@ -39,6 +40,7 @@ const CLASS_DEF = {
     convector: ConvectorAccessory,
     garagedoor: GarageDoorAccessory,
     simpledimmer: SimpleDimmerAccessory,
+    customblinds: CustomBlindsAccessory,
     simpleblinds: SimpleBlindsAccessory,
     simpleblinds2: SimpleBlinds2Accessory,
     simpleheater: SimpleHeaterAccessory,
@@ -192,7 +194,8 @@ class TuyaLan {
         const type = (deviceConfig.type || '').toLowerCase();
 
         const Accessory = CLASS_DEF[type];
-
+        // let accessory = null;
+        // let isCached = false;
         let accessory = this.cachedAccessories.get(deviceConfig.UUID),
             isCached = true;
 
