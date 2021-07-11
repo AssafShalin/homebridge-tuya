@@ -4,6 +4,7 @@ const TuyaDiscovery = require('./lib/TuyaDiscovery');
 const OutletAccessory = require('./lib/OutletAccessory');
 const SimpleLightAccessory = require('./lib/SimpleLightAccessory');
 const MultiOutletAccessory = require('./lib/MultiOutletAccessory');
+const MultiOutletSepAccessory = require('./lib/MultiOutletSepAccessory');
 const CustomMultiOutletAccessory = require('./lib/CustomMultiOutletAccessory');
 const RGBTWLightAccessory = require('./lib/RGBTWLightAccessory');
 const RGBTWOutletAccessory = require('./lib/RGBTWOutletAccessory');
@@ -34,6 +35,7 @@ const CLASS_DEF = {
     rgbtwoutlet: RGBTWOutletAccessory,
     twlight: TWLightAccessory,
     multioutlet: MultiOutletAccessory,
+    multioutletsep: MultiOutletSepAccessory,
     custommultioutlet: CustomMultiOutletAccessory,
     airconditioner: AirConditionerAccessory,
     airpurifier: AirPurifierAccessory,
@@ -118,13 +120,27 @@ class TuyaLan {
                 connectedDevices.push(config.id);
 
                 this.log.info('Discovered %s (%s) identified as %s (%s)', devices[config.id].name, config.id, devices[config.id].type, config.version);
+                if (devices[config.id].type === 'MultiOutletSep') {
+                    for(let i=0;i<devices[config.id]['outletCount']; i++) {
+                        const deviceConfig = {
+                            ...devices[config.id], 
+                            ...config,
+                            index: i,
+                            UUID: UUID.generate(PLUGIN_NAME + ':' + config.id + ':' + i),
+                            connect: false
+                        }
+                        const device = new TuyaAccessory(deviceConfig);
+                        this.addAccessory(device);
+                    }
+                } else {
 
-                const device = new TuyaAccessory({
-                    ...devices[config.id], ...config,
-                    UUID: UUID.generate(PLUGIN_NAME + ':' + config.id),
-                    connect: false
-                });
-                this.addAccessory(device);
+                    const device = new TuyaAccessory({
+                        ...devices[config.id], ...config,
+                        UUID: UUID.generate(PLUGIN_NAME + ':' + config.id),
+                        connect: false
+                    });
+                    this.addAccessory(device);
+                }
             });
 
         fakeDevices.forEach(config => {
